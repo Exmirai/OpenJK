@@ -82,6 +82,7 @@ XCVAR_DEF( ui_forcePowerDisable,			"0",					NULL,				CVAR_ARCHIVE|CVAR_INTERNAL 
 XCVAR_DEF( ui_fragLimit,					"10",					NULL,				CVAR_INTERNAL )
 XCVAR_DEF( ui_freeSaber,					"0",					NULL,				CVAR_ARCHIVE|CVAR_INTERNAL )
 XCVAR_DEF( ui_gametype,						"0",					NULL,				CVAR_ARCHIVE|CVAR_INTERNAL )
+XCVAR_DEF( ui_html,                         "1",                    NULL,               CVAR_ARCHIVE )
 XCVAR_DEF( ui_joinGametype,					"0",					NULL,				CVAR_ARCHIVE|CVAR_INTERNAL )
 XCVAR_DEF( ui_lastServerRefresh_0,			"",						NULL,				CVAR_ARCHIVE|CVAR_INTERNAL )
 XCVAR_DEF( ui_lastServerRefresh_1,			"",						NULL,				CVAR_ARCHIVE|CVAR_INTERNAL )

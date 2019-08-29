@@ -414,3 +414,11 @@ qboolean UI_SaberTypeForSaber( const char *saberName, char *saberType );
 // new ui
 
 extern uiImport_t *trap;
+
+// ultralight ui
+extern void UI_Ultralight_KeyEvent(int key, qboolean down);
+extern void UI_Ultralight_MouseEvent(int dx, int dy);
+extern void UI_Ultralight_Init(void);
+extern void UI_Ultralight_Update(void);
+extern void UI_Ultralight_Shutdown(void);
+extern void UI_Ultralight_Render(void);

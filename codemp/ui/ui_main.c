@@ -1050,6 +1050,7 @@ void UI_Shutdown( void ) {
 	trap->LAN_SaveCachedServers();
 	UI_CleanupGhoul2();
 	UI_FreeAllSpecies();
+	UI_Ultralight_Shutdown();
 }
 
 char *defaultMenu = NULL;
@@ -9978,6 +9979,9 @@ void UI_Init( qboolean inGameLoad ) {
 	UI_LoadForceConfig_List();
 
 	UI_InitForceShaders();
+	if (ui_html.integer) {
+		UI_Ultralight_Init();
+	}
 
 	// sets defaults for ui temp cvars
 	uiInfo.currentCrosshair = (int)trap->Cvar_VariableValue("cg_drawCrosshair");
@@ -10027,21 +10031,24 @@ void UI_Refresh( int realtime )
 
 	UI_UpdateCvars();
 
-	if (Menu_Count() > 0) {
+	if (!ui_html.integer && Menu_Count() > 0) {
 		// paint all the menus
 		Menu_PaintAll();
+	}
 		// refresh server browser list
 		UI_DoServerRefresh();
 		// refresh server status
 		UI_BuildServerStatus(qfalse);
 		// refresh find player list
 		UI_BuildFindPlayerList(qfalse);
-	}
-	// draw cursor
-	UI_SetColor( NULL );
-	if (Menu_Count() > 0 && (trap->Key_GetCatcher() & KEYCATCH_UI)) {
-		UI_DrawHandlePic( (float)uiInfo.uiDC.cursorx, (float)uiInfo.uiDC.cursory, 40.0f, 40.0f, uiInfo.uiDC.Assets.cursor);
-		//UI_DrawHandlePic( uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
+
+	if (!ui_html.integer) {
+		// draw cursor
+		UI_SetColor(NULL);
+		if (Menu_Count() > 0 && (trap->Key_GetCatcher() & KEYCATCH_UI)) {
+			UI_DrawHandlePic((float)uiInfo.uiDC.cursorx, (float)uiInfo.uiDC.cursory, 40.0f, 40.0f, uiInfo.uiDC.Assets.cursor);
+			//UI_DrawHandlePic( uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
+		}
 	}
 
 	if (ui_rankChange.integer)
@@ -10117,6 +10124,8 @@ void UI_Refresh( int realtime )
 		bgForcePowerCost[FP_SABER_OFFENSE][FORCE_LEVEL_1] = 1;
 		bgForcePowerCost[FP_SABER_DEFENSE][FORCE_LEVEL_1] = 1;
 	}
+	UI_Ultralight_Update();
+	UI_Ultralight_Render();
 
 	/*
 	if (parsedFPMessage[0] && FPMessageTime > realtime)
@@ -10145,6 +10154,7 @@ void UI_Refresh( int realtime )
 	}
 	*/
 	//For now, don't bother.
+
 }
 
 /*
@@ -10167,6 +10177,7 @@ void UI_KeyEvent( int key, qboolean down ) {
 			trap->Cvar_Set( "cl_paused", "0" );
 		}
 	}
+	UI_Ultralight_KeyEvent(key, down);
 
   //if ((s > 0) && (s != menu_null_sound)) {
 	//  trap->S_StartLocalSound( s, CHAN_LOCAL_SOUND );
@@ -10198,6 +10209,7 @@ void UI_MouseEvent( int dx, int dy )
 		//Menu_HandleMouseMove(menu, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
 		Display_MouseMove(NULL, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
 	}
+	UI_Ultralight_MouseEvent(dx, dy);
 }
 
 static void UI_ReadableSize ( char *buf, int bufsize, int value )
