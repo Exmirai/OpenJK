@@ -3399,7 +3399,7 @@ most world construction surfaces.
 
 ===============
 */
-shader_t *R_FindShader( const char *name, const int *lightmapIndex, const byte *styles, qboolean mipRawImage )
+shader_t *R_FindShader( const char *name, const int *lightmapIndex, const byte *styles, qboolean mipRawImage, qboolean isSDF)
 {
 	char		strippedName[MAX_QPATH];
 	char		fileName[MAX_QPATH];
@@ -3471,7 +3471,7 @@ shader_t *R_FindShader( const char *name, const int *lightmapIndex, const byte *
 	// look for a single TGA, BMP, or PCX
 	//
 	COM_StripExtension( name, fileName, sizeof( fileName ) );
-	image = R_FindImageFile( fileName, mipRawImage, mipRawImage, qtrue, mipRawImage ? GL_REPEAT : GL_CLAMP );
+	image = R_FindImageFile( fileName, mipRawImage, mipRawImage, isSDF ? qfalse : qtrue, mipRawImage ? GL_REPEAT : GL_CLAMP );
 	if ( !image ) {
 		ri.Printf( PRINT_DEVELOPER, S_COLOR_RED "Couldn't find image for shader %s\n", name );
 		shader.defaultShader = true;
@@ -3777,7 +3777,7 @@ qhandle_t RE_RegisterShaderNoMipSDF(const char* name) {
 		return 0;
 	}
 
-	sh = R_FindShader(name, lightmaps2d, stylesDefault, qfalse);
+	sh = R_FindShader(name, lightmaps2d, stylesDefault, qfalse, qtrue);
 	sh->isSDF = true;
 
 	// we want to return 0 if the shader failed to
