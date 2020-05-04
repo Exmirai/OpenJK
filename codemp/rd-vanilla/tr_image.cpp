@@ -274,6 +274,9 @@ void R_ImageList_f( void ) {
 		case GL_RGB5:
 			ri.Printf( PRINT_ALL, "RGB5 " );
 			break;
+		case GL_LUMINANCE:
+		case GL_INTENSITY:
+			ri.Printf(PRINT_ALL, "GRAYSCALE ");
 		default:
 			ri.Printf( PRINT_ALL, "???? " );
 		}

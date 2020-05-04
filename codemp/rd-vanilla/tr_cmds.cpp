@@ -442,6 +442,7 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 	if ( !tr.registered ) {
 		return;
 	}
+	RE_StretchPic(100, 100, 200, 200, 0, 0, 1, 1, sdfTestShader);
 	cmd = (swapBuffersCommand_t *) R_GetCommandBuffer( sizeof( *cmd ) );
 	if ( !cmd ) {
 		return;

@@ -1760,7 +1760,38 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			//
 			// draw
 			//
-			R_DrawElements( input->numIndexes, input->indexes );
+			if (input->shader->isSDF) {
+				//Enable pixel/vertex shader
+				//bind texture
+				//set uniforms
+				//draw
+				//disable p/v shaders
+				const float smoothing = 1.0f / 8192.0f;
+				float edge0 = 0.5f - smoothing;
+				float edge1 = 0.5f + smoothing;
+				int err = 0;
+
+
+				GL_SelectTexture(0);
+				GL_Bind(input->shader->stages[0].bundle[0].image);
+
+				qglEnable(GL_VERTEX_PROGRAM_ARB);
+				qglBindProgramARB(GL_VERTEX_PROGRAM_ARB, tr.sdfVtxShader);
+				qglEnable(GL_FRAGMENT_PROGRAM_ARB);
+				qglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, tr.sdfPxShader);
+				qglProgramEnvParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0, edge0, edge1, 0.0f, 0.0f);
+
+
+				R_DrawElements(input->numIndexes, input->indexes);
+					
+
+				qglDisable(GL_VERTEX_PROGRAM_ARB);
+				qglDisable(GL_FRAGMENT_PROGRAM_ARB);
+			}
+			else {
+
+				R_DrawElements(input->numIndexes, input->indexes);
+			}
 
 			if (lStencilled)
 			{ //re-enable the color buffer, disable stencil test

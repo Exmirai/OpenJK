@@ -207,12 +207,18 @@ struct PNGFileReader
 		// but this only seemed to be used by the RMG system which does not work in JKA. If this
 		// does need to be re-implemented, then colortype should be PNG_COLOR_TYPE_PALETTE or
 		// PNG_COLOR_TYPE_GRAY.
-		if ( colortype != PNG_COLOR_TYPE_RGB && colortype != PNG_COLOR_TYPE_RGBA )
+		if ( colortype != PNG_COLOR_TYPE_RGB && colortype != PNG_COLOR_TYPE_RGBA && colortype != PNG_COLOR_TYPE_GRAY)
 		{
 			ri.Printf (PRINT_ERROR, "Image is not 24-bit or 32-bit.");
 			return 0;
 		}
-
+		// Read the png data
+		if (colortype == PNG_COLOR_TYPE_GRAY)
+		{
+			// Expand Grayscale to RGBA
+			png_set_gray_to_rgb(png_ptr);
+			png_set_add_alpha(png_ptr, 0xff, PNG_FILLER_AFTER);
+		}
 		// Read the png data
 		if ( colortype == PNG_COLOR_TYPE_RGB )
 		{

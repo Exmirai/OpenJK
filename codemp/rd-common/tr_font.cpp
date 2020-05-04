@@ -225,6 +225,7 @@ public:
 	int				m_iOriginalFontWhenSBCSOverriden;
 	float			m_fAltSBCSFontScaleFactor;	// -1, else amount to adjust returned values by to make them fit the master western font they're substituting for
 	bool			m_bIsFakeAlienLanguage;	// ... if true, don't process as MBCS or override as SBCS etc
+	bool			isSDF;
 
 	CFontInfo(const char *fontName);
 //	CFontInfo(int fill) { memset(this, fill, sizeof(*this)); }	// wtf?
@@ -892,6 +893,7 @@ CFontInfo::CFontInfo(const char *_fontName)
 		mDescender = LittleShort(fontdat->mDescender);
 //		mAsianHack = LittleShort(fontdat->mKoreanHack);	// ignore this crap, it's some junk in the fontdat file that no-one uses
 		mbRoundCalcs = false /*!!strstr(fontName,"ergo")*/;
+		isSDF = fontdat->isSDF;
 
 		// cope with bad fontdat headers...
 		//
@@ -912,7 +914,12 @@ CFontInfo::CFontInfo(const char *_fontName)
 
 	Q_strncpyz(m_sFontName, fontName, sizeof(m_sFontName));
 	COM_StripExtension( m_sFontName, m_sFontName, sizeof( m_sFontName ) );	// so we get better error printing if failed to load shader (ie lose ".fontdat")
-	mShader = RE_RegisterShaderNoMip(m_sFontName);
+	if (isSDF) {
+		mShader = RE_RegisterShaderNoMipSDF(m_sFontName);
+	}
+	else {
+		mShader = RE_RegisterShaderNoMip(m_sFontName);
+	}
 
 	FlagNoAsianGlyphs();
 	UpdateAsianIfNeeded(true);

@@ -120,6 +120,70 @@ TEMP r0;\
 TEX r0, fragment.texcoord[0], texture[0], RECT;\
 TEX result.color, r0, texture[1], 3D;\
 END";
+
+static const char* sdfVtxShader =
+"!!ARBvp1.0\
+PARAM	ModelViewProj[4]= { state.matrix.mvp };\
+DP4		result.position.x, ModelViewProj[0], vertex.position;\
+DP4		result.position.y, ModelViewProj[1], vertex.position;\
+DP4		result.position.z, ModelViewProj[2], vertex.position;\
+DP4		result.position.w, ModelViewProj[3], vertex.position;\
+MOV result.texcoord[0], vertex.texcoord[0];\
+END";
+
+static const char* sdfPxShader =
+"!!ARBfp1.0\
+#By UniqueUlysees\n\
+\
+# Input.\n\
+ATTRIB	iColor	= fragment.color.primary;\
+\
+# Output.\n\
+OUTPUT	oColor	= result.color;\
+\
+# Constants.\n\
+PARAM edge0	= program.env[0]; #Smoothing already applied\n\
+PARAM edge1 = program.env[1]; #Smoothing already applied\n\
+\
+# Aquiring texel \n\
+TEMP texel0; \
+TEMP distance; \
+TEX texel0, fragment.texcoord[0], texture[0], 2D; \
+MOV distance, texel0.x; \
+MUL distance, distance, 2.0;\
+SUB distance, distance, 1.0;\
+\
+TEMP product0; \
+TEMP t1; \
+TEMP t2; \
+TEMP e1minuse0; \
+TEMP ric; \
+\
+#Begin of smoothstep https ://www.khronos.org/registry/OpenGL-Refpages/gl4/html/smoothstep.xhtml\n\
+TEMP x;\
+SUB x, distance, edge0;  # x - edge0\n\
+SUB e1minuse0, edge1, edge0; #edge1 - edge0\n\
+RCP ric, e1minuse0.x;\
+MUL x, ric.x, x;\
+MIN x, x, 1.0;  # min part of clamp\n\
+MAX x, x, 0.0;  # max part of clamp\n\
+\
+TEMP xsquared; \n\
+TEMP r1; \n\
+MUL r1, 2, x;  # 2 * x\n\
+SUB r1, 3, r1;  # 3 - 2 * x\n\
+MUL xsquared, x, x;  # x* x\n\
+MUL r1, r1, xsquared;\
+#Smoothstep end r1 = alpha value\n\
+SUB r1, 1, r1;\
+TEMP res_ac; \
+MUL res_ac, iColor.a, r1; \
+\
+MOV oColor.x, 1; \
+MOV oColor.y, 1; \
+MOV oColor.z, 1; \
+MOV oColor.a, res_ac.x; \
+END";
 /***********************************************************************************************************/
 
 #define GL_PROGRAM_ERROR_STRING_ARB						0x8874
@@ -227,6 +291,27 @@ void ARB_InitGPUShaders(void) {
 		{
 			Com_Printf(S_COLOR_RED "Failed to compile gamma correction pixel shader. Error at character %d\n", errorChar);
 			glConfigExt.doGammaCorrectionWithShaders = qfalse;
+		}
+	}
+	qglGenProgramsARB(1, &tr.sdfVtxShader);
+	qglBindProgramARB(GL_VERTEX_PROGRAM_ARB, tr.sdfVtxShader);
+	qglProgramStringARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(sdfVtxShader), sdfVtxShader);
+
+	qglGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorChar);
+	if (errorChar != -1)
+	{
+		Com_Printf(S_COLOR_RED "ERROR: Failed to compile sdf vertex shader. Error at character %d\n", errorChar);
+	}
+	else
+	{
+		qglGenProgramsARB(1, &tr.sdfPxShader);
+		qglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, tr.sdfPxShader);
+		qglProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(sdfPxShader), sdfPxShader);
+
+		qglGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorChar);
+		if (errorChar != -1)
+		{
+			Com_Printf(S_COLOR_RED "Failed to compile sdf pixel shader. Error at character %d\n", errorChar);
 		}
 	}
 }

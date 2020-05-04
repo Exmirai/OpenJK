@@ -472,6 +472,7 @@ typedef struct shader_s {
 
 	// True if this shader has a stage with glow in it (just an optimization).
 	bool hasGlow;
+	bool isSDF;
 
 	struct shader_s *remappedShader;                  // current shader this one is remapped too
 	struct	shader_s	*next;
@@ -991,6 +992,9 @@ typedef struct trGlobals_s {
 	GLuint					gammaCorrectVtxShader;
 	GLuint					gammaCorrectPxShader;
 
+	GLuint					sdfVtxShader;
+	GLuint					sdfPxShader;
+
 	shader_t				*defaultShader;
 	shader_t				*shadowShader;
 	shader_t				*distortionShader;
@@ -1387,6 +1391,7 @@ extern	const byte	stylesDefault[MAXLIGHTMAPS];
 qhandle_t RE_RegisterShaderLightMap( const char *name, const int *lightmapIndex, const byte *styles ) ;
 qhandle_t		 RE_RegisterShader( const char *name );
 qhandle_t		 RE_RegisterShaderNoMip( const char *name );
+qhandle_t		 RE_RegisterShaderNoMipSDF( const char *name);
 const char		*RE_ShaderNameFromIndex(int index);
 qhandle_t RE_RegisterShaderFromImage(const char *name, int *lightmapIndex, byte *styles, image_t *image, qboolean mipRawImage);
 
@@ -1871,3 +1876,5 @@ void R_AddDecals( void );
 void RB_DrawSurfaceSprites( shaderStage_t *stage, shaderCommands_t *input);
 
 qboolean ShaderHashTableExists(void);
+
+extern qhandle_t sdfTestShader;

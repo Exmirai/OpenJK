@@ -258,6 +258,7 @@ PFNGLGETPROGRAMLOCALPARAMETERFVARBPROC qglGetProgramLocalParameterfvARB;
 PFNGLGETPROGRAMIVARBPROC qglGetProgramivARB;
 PFNGLGETPROGRAMSTRINGARBPROC qglGetProgramStringARB;
 PFNGLISPROGRAMARBPROC qglIsProgramARB;
+PFNGLDEBUGMESSAGECALLBACKPROC qglDebugMessageCallback;
 
 PFNGLLOCKARRAYSEXTPROC qglLockArraysEXT;
 PFNGLUNLOCKARRAYSEXTPROC qglUnlockArraysEXT;
@@ -659,6 +660,8 @@ static void GLimp_InitExtensions( void )
 		qglGetProgramivARB					= (PFNGLGETPROGRAMIVARBPROC)     ri.GL_GetProcAddress("glGetProgramivARB");
 		qglGetProgramStringARB				= (PFNGLGETPROGRAMSTRINGARBPROC) ri.GL_GetProcAddress("glGetProgramStringARB");
 		qglIsProgramARB						= (PFNGLISPROGRAMARBPROC)        ri.GL_GetProcAddress("glIsProgramARB");
+		qglDebugMessageCallback				= (PFNGLDEBUGMESSAGECALLBACKPROC) ri.GL_GetProcAddress("glDebugMessageCallback");
+
 
 		// Validate the functions we need.
 		if ( !qglProgramStringARB || !qglBindProgramARB || !qglDeleteProgramsARB || !qglGenProgramsARB ||
@@ -666,7 +669,7 @@ static void GLimp_InitExtensions( void )
              !qglProgramEnvParameter4fvARB || !qglProgramLocalParameter4dARB || !qglProgramLocalParameter4dvARB ||
              !qglProgramLocalParameter4fARB || !qglProgramLocalParameter4fvARB || !qglGetProgramEnvParameterdvARB ||
              !qglGetProgramEnvParameterfvARB || !qglGetProgramLocalParameterdvARB || !qglGetProgramLocalParameterfvARB ||
-             !qglGetProgramivARB || !qglGetProgramStringARB || !qglIsProgramARB )
+             !qglGetProgramivARB || !qglGetProgramStringARB || !qglIsProgramARB || !qglDebugMessageCallback )
 		{
 			bARBVertexProgram = false;
 			bARBFragmentProgram = false;
@@ -756,6 +759,13 @@ static const char *TruncateGLExtensionsString (const char *extensionsString, int
 	return truncatedExtensions;
 }
 
+
+static void khr_gl_error(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+{
+
+	Com_Printf("Error: %s", message);
+
+}
 /*
 ** InitOpenGL
 **
@@ -780,6 +790,7 @@ static void InitOpenGL( void )
 	if ( glConfig.vidWidth == 0 )
 	{
 		windowDesc_t windowDesc = { GRAPHICS_API_OPENGL };
+		windowDesc.gl.contextFlags = GLCONTEXT_DEBUG;
 		memset(&glConfig, 0, sizeof(glConfig));
 		memset(&glConfigExt, 0, sizeof(glConfigExt));
 
@@ -814,6 +825,8 @@ static void InitOpenGL( void )
 		// set default state
 		GL_SetDefaultState();
 	}
+	qglEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+	qglDebugMessageCallback((GLDEBUGPROC)khr_gl_error, NULL);
 }
 
 /*
@@ -1789,6 +1802,14 @@ void R_Init( void ) {
 	// print info
 	GfxInfo_f();
 
+	sdfTestShader = RE_RegisterShaderNoMipSDF("sdf/sdf_test");
+	if (!sdfTestShader) {
+		Com_Printf("Failed to load SDFTEST\n");
+	}
+	else {
+		Com_Printf("SDFTEST Loaded\n");
+	}
+
 //	ri.Printf( PRINT_ALL, "----- finished R_Init -----\n" );
 }
 
@@ -1879,6 +1900,7 @@ RE_EndRegistration
 Touch all images to make sure they are resident
 =============
 */
+qhandle_t sdfTestShader;
 void RE_EndRegistration( void ) {
 	R_IssuePendingRenderCommands();
 	if (!ri.Sys_LowPhysicalMemory()) {
