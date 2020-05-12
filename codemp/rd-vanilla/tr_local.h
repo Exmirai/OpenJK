@@ -1876,5 +1876,3 @@ void R_AddDecals( void );
 void RB_DrawSurfaceSprites( shaderStage_t *stage, shaderCommands_t *input);
 
 qboolean ShaderHashTableExists(void);
-
-extern qhandle_t sdfTestShader;

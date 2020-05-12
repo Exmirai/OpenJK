@@ -413,7 +413,7 @@ typedef struct dfontdat_s
 	short			mDescender;
 
 	short			mKoreanHack;
-	qboolean		isSDF;
+	short			isSDF;
 } dfontdat_t;
 
 /////////////////// fonts end ////////////////////////////////////

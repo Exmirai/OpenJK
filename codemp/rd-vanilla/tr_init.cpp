@@ -1802,14 +1802,6 @@ void R_Init( void ) {
 	// print info
 	GfxInfo_f();
 
-	sdfTestShader = RE_RegisterShaderNoMipSDF("sdf/sdf_test");
-	if (!sdfTestShader) {
-		Com_Printf("Failed to load SDFTEST\n");
-	}
-	else {
-		Com_Printf("SDFTEST Loaded\n");
-	}
-
 //	ri.Printf( PRINT_ALL, "----- finished R_Init -----\n" );
 }
 
@@ -1900,7 +1892,6 @@ RE_EndRegistration
 Touch all images to make sure they are resident
 =============
 */
-qhandle_t sdfTestShader;
 void RE_EndRegistration( void ) {
 	R_IssuePendingRenderCommands();
 	if (!ri.Sys_LowPhysicalMemory()) {

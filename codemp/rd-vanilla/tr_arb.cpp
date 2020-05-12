@@ -79,7 +79,7 @@ const unsigned char g_strGlowPShaderARB[] =
 	"!!ARBfp1.0\
 	\
 	# Input.\n\
-	ATTRIB	iColor	= fragment.color.primary;\
+	ATTRIB	iColor	= fragment.color;\
 	\
 	# Output.\n\
 	OUTPUT	oColor	= result.color;\
@@ -128,7 +128,8 @@ DP4		result.position.x, ModelViewProj[0], vertex.position;\
 DP4		result.position.y, ModelViewProj[1], vertex.position;\
 DP4		result.position.z, ModelViewProj[2], vertex.position;\
 DP4		result.position.w, ModelViewProj[3], vertex.position;\
-MOV result.texcoord[0], vertex.texcoord[0];\
+MOV		result.texcoord[0], vertex.texcoord[0];\
+MOV		result.color, vertex.color;\
 END";
 
 static const char* sdfPxShader =
@@ -179,9 +180,9 @@ SUB r1, 1, r1;\
 TEMP res_ac; \
 MUL res_ac, iColor.a, r1; \
 \
-MOV oColor.x, 1; \
-MOV oColor.y, 1; \
-MOV oColor.z, 1; \
+MOV oColor.x, iColor.x; \
+MOV oColor.y, iColor.y; \
+MOV oColor.z, iColor.z; \
 MOV oColor.a, res_ac.x; \
 END";
 /***********************************************************************************************************/

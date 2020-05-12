@@ -893,7 +893,7 @@ CFontInfo::CFontInfo(const char *_fontName)
 		mDescender = LittleShort(fontdat->mDescender);
 //		mAsianHack = LittleShort(fontdat->mKoreanHack);	// ignore this crap, it's some junk in the fontdat file that no-one uses
 		mbRoundCalcs = false /*!!strstr(fontName,"ergo")*/;
-		isSDF = fontdat->isSDF;
+		isSDF = !!fontdat->isSDF;
 
 		// cope with bad fontdat headers...
 		//
