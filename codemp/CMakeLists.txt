@@ -43,6 +43,9 @@ if(BuildMPRdVanilla)
 	add_subdirectory("${MPDir}/rd-vanilla")
 endif(BuildMPRdVanilla)
 
+#	 Add AMD ProRender JKA Renderer Project
+	add_subdirectory("${MPDir}/rd-prorender")
+
 #    Common things between Engine and Dedicated Server
 if(BuildMPEngine OR BuildMPDed)
 
