@@ -1396,6 +1396,10 @@ float RE_Font_StrLenPixelsNew( const char *psText, const int iFontHandle, const 
 			float iPixelAdvance = (float)curfont->GetLetterHorizAdvance( uiLetter );
 
 			float fValue = iPixelAdvance * ((uiLetter > (unsigned)g_iNonScaledCharRange) ? fScaleAsian : fScale);
+			if (curfont->isSDF) {
+				float s = (float)curfont->GetPointSize() / 10.0f;
+				fValue = fValue * s; // because our own size metrics
+			}
 
 			if ( r_aspectCorrectFonts->integer == 1 ) {
 				fValue *= ((float)(SCREEN_WIDTH * glConfig.vidHeight) / (float)(SCREEN_HEIGHT * glConfig.vidWidth));
@@ -1582,7 +1586,7 @@ void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, c
 		unsigned int uiLetter = AnyLanguage_ReadCharFromString( psText, &iAdvanceCount, NULL );
 		psText += iAdvanceCount;
 
-		switch( uiLetter )
+		switch (uiLetter)
 		{
 		case 10:						//linefeed
 			fx = fox;
@@ -1597,10 +1601,10 @@ void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, c
 		case 32:						// Space
 			pLetter = curfont->GetLetter(' ');
 			fx += curfont->mbRoundCalcs ? Round(pLetter->horizAdvance * fScale) : pLetter->horizAdvance * fScale;
-			bNextTextWouldOverflow = ( iMaxPixelWidth != -1 && ((fx-fox) > (float)iMaxPixelWidth) ) ? qtrue : qfalse; // yeuch
+			bNextTextWouldOverflow = (iMaxPixelWidth != -1 && ((fx - fox) > (float)iMaxPixelWidth)) ? qtrue : qfalse; // yeuch
 			break;
 		case '_':	// has a special word-break usage if in Thai (and followed by a thai char), and should not be displayed, else treat as normal
-			if (GetLanguageEnum()== eThai && ((unsigned char *)psText)[0] >= TIS_GLYPHS_START)
+			if (GetLanguageEnum() == eThai && ((unsigned char*)psText)[0] >= TIS_GLYPHS_START)
 			{
 				break;
 			}
@@ -1615,22 +1619,27 @@ void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, c
 					if (!gbInShadow)
 					{
 						vec4_t color;
-						Com_Memcpy( color, g_color_table[colour], sizeof( color ) );
+						Com_Memcpy(color, g_color_table[colour], sizeof(color));
 						color[3] = rgba ? rgba[3] : 1.0f;
-						RE_SetColor( color );
+						RE_SetColor(color);
 					}
 					break;
 				}
 			}
 			//purposely falls thrugh
 		default:
-			pLetter = curfont->GetLetter( uiLetter, &hShader );			// Description of pLetter
-			if(!pLetter->width)
+			pLetter = curfont->GetLetter(uiLetter, &hShader);			// Description of pLetter
+			if (!pLetter->width)
 			{
 				pLetter = curfont->GetLetter('.');
 			}
 
 			float fThisScale = uiLetter > (unsigned)g_iNonScaledCharRange ? fScaleAsian : fScale;
+			if (curfont->isSDF) {
+				float s = (float)curfont->GetPointSize() / 10.0f;
+				fThisScale = fThisScale * s; // because our own size metrics
+			}
+		
 
 			// sigh, super-language-specific hack...
 			//
